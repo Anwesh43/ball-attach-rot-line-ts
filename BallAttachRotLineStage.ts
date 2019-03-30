@@ -8,7 +8,7 @@ const nodes : number = 5
 const lines : number = 4
 const foreColor : string = "#4527A0"
 const backColor : string = "#bdbdbd"
-const rFactor : number = 5
+const rFactor : number = 6
 
 class ScaleUtil {
 
@@ -73,7 +73,7 @@ class DrawingUtil {
         const gap : number = h / (nodes + 1)
         const size : number = gap / sizeFactor
         const yGap : number = (2 * size) / lines
-        const r : number = yGap / rFactor
+        const r : number = size / rFactor
         const sc1 : number = ScaleUtil.divideScale(scale, 0, 2)
         const sc2 : number = ScaleUtil.divideScale(scale, 1, 2)
         DrawingUtil.setStyle(context)
@@ -81,13 +81,14 @@ class DrawingUtil {
         context.translate(w / 2, gap * (i + 1))
         context.rotate(Math.PI * 0.5 * sc2)
         for (var j = 0; j < lines; j++) {
+            const y : number = -size + yGap * j
             const sf : number = ScaleUtil.sjf(j)
             const scj : number = ScaleUtil.divideScale(sc1, j, lines)
             const scj1 : number = ScaleUtil.divideScale(scj, 0, 2)
             const scj2 : number = ScaleUtil.divideScale(scj, 1, 2)
             const ballX : number = yGap + (w / 2 - yGap) * (1 - scj2)
-            DrawingUtil.drawRotatingLine(context, yGap * j, yGap, -Math.PI/2 * sf * scj1)
-            DrawingUtil.drawMovingBall(context, r, ballX * sf, yGap * j)
+            DrawingUtil.drawRotatingLine(context, y, yGap, -Math.PI/2 * sf * scj1)
+            DrawingUtil.drawMovingBall(context, r, ballX * sf, y)
         }
         context.restore()
     }
@@ -133,7 +134,7 @@ class State {
     prevScale : number = 0
 
     update(cb : Function) {
-        this.scale += ScaleUtil.updateValue(this.scale, this.dir, lines, 1)
+        this.scale += ScaleUtil.updateValue(this.scale, this.dir, lines * 2, 1)
         if (Math.abs(this.scale - this.prevScale) > 1) {
             this.scale = this.prevScale + this.dir
             this.dir = 0
