@@ -234,3 +234,25 @@ class BallAttackRotLine {
         this.curr.startUpdating(cb)
     }
 }
+
+class Renderer {
+
+    animator : Animator = new Animator()
+    barl : BallAttackRotLine = new BallAttackRotLine()
+
+    render(context : CanvasRenderingContext2D) {
+        this.barl.draw(context)
+    }
+
+    handleTap(cb : Function) {
+        this.barl.startUpdating(() => {
+            this.animator.start(() => {
+                cb()
+                this.barl.update(() => {
+                    this.animator.stop()
+                    cb()
+                })
+            })
+        })
+    }
+}
