@@ -8,6 +8,7 @@ const nodes : number = 5
 const lines : number = 4
 const foreColor : string = "#4527A0"
 const backColor : string = "#bdbdbd"
+const rFactor : number = 5
 
 class ScaleUtil {
 
@@ -30,5 +31,64 @@ class ScaleUtil {
 
     static updateValue(scale : number, dir : number, a : number, b : number) : number {
         return ScaleUtil.mirrorValue(scale, a, b) * dir * scGap
+    }
+
+    static sjf(j : number) : number {
+        return 1 - 2 * (j % 2)
+    }
+}
+
+class DrawingUtil {
+
+    static drawMovingBall(context : CanvasRenderingContext2D, r : number, x : number, y : number) {
+        context.save()
+        context.translate(x, y)
+        context.beginPath()
+        context.arc(0, 0, r, 0, 2 * Math.PI)
+        context.fill()
+        context.restore()
+    }
+
+    static drawRotatingLine(context : CanvasRenderingContext2D, y : number, size : number, deg : number) {
+        context.save()
+        context.translate(0, y)
+        context.rotate(deg)
+        context.beginPath()
+        context.moveTo(0, 0)
+        context.lineTo(0, size)
+        context.stroke()
+        context.restore()
+    }
+
+    static setStyle(context : CanvasRenderingContext2D) {
+        context.strokeStyle = foreColor
+        context.fillStyle = foreColor
+        context.lineWidth = Math.min(w, h) / strokeFactor
+        context.lineCap = 'round'
+    }
+
+
+
+    static drawBARLNode(context : CanvasRenderingContext2D, i : number, scale : number) {
+        const gap : number = h / (nodes + 1)
+        const size : number = gap / sizeFactor
+        const yGap : number = (2 * size) / lines
+        const r : number = yGap / rFactor
+        const sc1 : number = ScaleUtil.divideScale(scale, 0, 2)
+        const sc2 : number = ScaleUtil.divideScale(scale, 1, 2)
+        DrawingUtil.setStyle(context)
+        context.save()
+        context.translate(w / 2, gap * (i + 1))
+        context.rotate(Math.PI * 0.5 * sc2)
+        for (var j = 0; j < lines; j++) {
+            const sf : number = ScaleUtil.sjf(j)
+            const scj : number = ScaleUtil.divideScale(sc1, j, lines)
+            const scj1 : number = ScaleUtil.divideScale(scj, 0, 2)
+            const scj2 : number = ScaleUtil.divideScale(scj, 1, 2)
+            const ballX : number = yGap + (w / 2 - yGap) * (1 - scj2)
+            DrawingUtil.drawRotatingLine(context, yGap * j, yGap, -Math.PI/2 * sf * scj1)
+            DrawingUtil.drawMovingBall(context, r, ballX * sf, yGap * j)
+        }
+        context.restore()
     }
 }
